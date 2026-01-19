@@ -1,8 +1,6 @@
 
 """
 Marker: This class represents a point in a video at a particular time and screen coordinates
-
-TODO: Create class body
 """
 
 # Used for reading and writing the marker files
@@ -30,6 +28,7 @@ class Marker:
         # The id of the marker that this one is paired with
         self.paired_id = paired_id
     
+    # Prints out the neccesary information for this marker
     def display(self):
         print(f"{self.id}: ({self.pos[0]}, {self.pos[1]}) | #{self.frame_num} | => {self.paired_id}")
 
@@ -61,11 +60,3 @@ class Marker_Manager:
                 marker.frame_num
             ]
         marker_df.to_csv(marker_path)
-            
-
-# testing
-if __name__ == '__main__':
-    mm = Marker_Manager()
-    mm.read_markers('test.csv')
-    for k, v in mm.markers.items():
-        v.display()
