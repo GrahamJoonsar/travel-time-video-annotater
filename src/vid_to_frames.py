@@ -1,13 +1,17 @@
 """
 vid_to_frames: This file takes in a video and selects specific frames from it to put into a specified folder
+ - We assume that the frames of the video are zero-indexed.
+ - The frame step determines how often we save a frame.
+   - Ex: with frame_step = 3, we save frames 0, 3, 6, 9 ...
+ - The output size is just the dimensions of the saved frame in pixels.
+ - Replace vid_path with the absolute path of the video you are trying to annotate.
+
 
 # Multithreaded video frame extraction pipeline
 # Generated with assistance from ChatGPT (OpenAI), 2026
 # Model: GPT-5.2
 # Description: High-throughput producer–consumer pipeline for
 #              video decoding, resizing, and parallel PNG saving.
-
-TODO: Change this so that the numbers on the files are the true frame numbers.
 """
 
 import cv2
@@ -46,7 +50,6 @@ STOP = object()
 def reader():
     cap = cv2.VideoCapture(vid_path)
     frame_count = 0
-    saved_index = 0
 
     while True:
         ret, frame = cap.read()
@@ -54,10 +57,12 @@ def reader():
             break
 
         if frame_count % frame_step == 0:
-            read_queue.put((saved_index, frame))
-            saved_index += 1
+            read_queue.put((frame_count, frame))
 
         frame_count += 1
+
+        if frame_count > 100:
+            break
 
     cap.release()
 
@@ -101,7 +106,7 @@ def writer():
 
 # ================= RUN =================
 
-print("PROCESSING VIDEO (MAX THROUGHPUT MODE)")
+print(f"PROCESSING VIDEO (MAX THROUGHPUT MODE) | FRAME STEP: {frame_step}")
 
 threads = []
 
