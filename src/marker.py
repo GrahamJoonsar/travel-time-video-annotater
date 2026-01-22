@@ -1,6 +1,10 @@
 
 """
 Marker: This class represents a point in a video at a particular time and screen coordinates
+Marker Manager: This class keeps track of all the markers for a particular instance of video,
+                and is responsible for saving, reading, and displaying markers, among other functions.
+
+TODO: Change the marker saving and reading to work with json instead.
 """
 
 # Used for reading and writing the marker files
