@@ -18,6 +18,7 @@ import cv2
 import os
 import threading
 import queue
+from datetime import datetime
 
 # ================= CONFIG =================
 
@@ -60,9 +61,6 @@ def reader():
             read_queue.put((frame_count, frame))
 
         frame_count += 1
-
-        if frame_count > 100:
-            break
 
     cap.release()
 
@@ -125,3 +123,13 @@ for t in threads:
     t.join()
 
 print("STOPPED PROCESSING VIDEO")
+
+with open(frame_folder_path + "info.txt", "w") as info_file:
+    info_file.write("Video File: " + vid_path + "\n")
+
+    # Format as "YYYY-MM-DD HH:MM:SS" (e.g., "2026-01-22 13:20:00")
+    formatted_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    info_file.write("Frame Creation: " + formatted_datetime + "\n")
+
+    info_file.write("Frame Step: " + str(frame_step) + "\n")
+    info_file.write("Output Size (px): " + str(output_size) + "\n")
