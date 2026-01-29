@@ -8,7 +8,8 @@ TODO: Change the marker saving and reading to work with json instead.
 """
 
 # Used for reading and writing the marker files
-import pandas as pd
+import json
+from datetime import datetime
 
 class Marker:
     HIGHEST_ID = 0 # Static class variable neccesary to keep IDs unique between markers
@@ -36,31 +37,36 @@ class Marker:
     def display(self):
         print(f"{self.id}: ({self.pos[0]}, {self.pos[1]}) | #{self.frame_num} | => {self.paired_id}")
 
+    # Note, this does not include the marker's own ID
+    def to_dict(self):
+        return {
+            "x": self.pos[0],
+            "y": self.pos[1],
+            "frame_num": self.frame_num,
+            "paired_id": self.paired_id,
+        }
+
 class Marker_Manager:
     def __init__(self):
         self.markers = {}
     
-    # Your input should be a properly formatted CSV file with marker data
+    # Your input should be a properly formatted JSON file with marker data
     def read_markers(self, marker_path: str):
-        marker_df = pd.read_csv(marker_path)
-        for _, row in marker_df.iterrows():
-            self.markers[row['id']] = Marker(
-                (row['x'], row['y']),
-                row['frame_num'],
-                row['id'],
-                row['paired_id']
-            )
+        # TODO
+        pass
 
 
-    # Writes the marker dataframe to the specified CSV path
-    def write_markers(self, marker_path: str):
-        marker_df = pd.DataFrame({'id': [], 'paired_id': [], 'x': [], 'y': [], 'frame_num': []})
-        for _, marker in self.markers.items():
-            marker_df.loc[len(marker_df)] = [
-                marker.id,
-                marker.paired_id,
-                marker.pos[0],
-                marker.pos[1],
-                marker.frame_num
-            ]
-        marker_df.to_csv(marker_path)
+    # Writes the marker dataframe to the specified JSON path
+    # Frame step and vid_path needed for JSON header
+    def write_markers(self, marker_path: str, frame_step: int, vid_path: str):
+        with open(marker_path, "w") as f:
+            output_dict = {}
+            output_dict["frame_step"] = frame_step
+            output_dict["vid_path"] = vid_path
+            formatted_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            output_dict["date_modified"] = formatted_datetime
+
+            for key in self.markers:
+                output_dict[key] = self.markers[key].to_dict()
+            json.dump(output_dict, f, indent=4)
+        print("SAVED MARKERS")
