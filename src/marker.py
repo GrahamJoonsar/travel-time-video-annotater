@@ -44,23 +44,31 @@ class Marker:
 # ensuring that IDs are unique and paired IDs are managed properly
 class Marker_Manager:
     HIGHEST_ID = 0 # Static class variable neccesary to keep IDs unique between markers
-    def __init__(self):
+    def __init__(self, frame_step):
         self.markers = {}
-        self.frame_step = None
+        self.frame_step = frame_step
 
-    def add_marker(self, pos: tuple[int, int], frame_num: int):
-        Marker_Manager.HIGHEST_ID += 1
-        self.markers[Marker_Manager.HIGHEST_ID] = Marker(
-            pos,
-            frame_num,
-            Marker_Manager.HIGHEST_ID,
-            None
-        )
+    def add_marker(self, pos: tuple[int, int], frame_num: int, id=None, paired_id=None):
+        if id is None:
+            Marker_Manager.HIGHEST_ID += 1
+            self.markers[Marker_Manager.HIGHEST_ID] = Marker(
+                pos,
+                frame_num,
+                Marker_Manager.HIGHEST_ID,
+                paired_id
+            )
+        else:
+            self.markers[id] = Marker(
+                pos,
+                frame_num,
+                Marker_Manager.HIGHEST_ID,
+                paired_id
+            )
     
     # Your input should be a properly formatted JSON file with marker data,
     # function returns the frame_step and the video path in (int, str)
     # Function will error on FileNotFound, should be handled by user
-    def read_markers(self, marker_path: str) -> tuple[int, str]:
+    def read_markers_json(self, marker_path: str) -> tuple[int, str]:
         with open(marker_path) as f:
             # Erasing marker data possibly previously contained, and resetting HIGHEST ID
             self.markers = {}
@@ -91,12 +99,12 @@ class Marker_Manager:
 
     # Writes the marker dataframe to the specified JSON path
     # Frame step and vid_path needed for JSON header
-    def write_markers(self, marker_path: str, frame_step: int, vid_path: str):
+    def write_markers_json(self, marker_path: str, vid_path: str):
         with open(marker_path, "w") as f:
             output_dict = {}
 
             # Adding header data
-            output_dict["frame_step"] = frame_step
+            output_dict["frame_step"] = self.frame_step
             output_dict["vid_path"] = vid_path
             formatted_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             output_dict["date_modified"] = formatted_datetime
